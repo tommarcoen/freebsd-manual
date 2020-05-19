@@ -1,0 +1,279 @@
+\chapter{Installing FreeBSD}
+\chapterprecis{%
+   Restructured, reorganized, and parts rewritten by Jim Mock.
+   Updated for \cmd{bsdinstall} by Gavin Atkinson and Warren Block.
+   Updated for root-on-ZFS by Allan Jude.
+}
+
+\section{Synopsis}
+
+There are several different ways of getting FreeBSD to run, depending on the environment.
+These are:
+\begin{itemize}
+\item
+   virtual machine images, to download and import on a virtual environment of choice.
+   These can be downloaded from the Download FreeBSD page.
+   There are images for KVM (``qcow2''), VMWare (``vmdk''), Hyper-V (``vhd''), and raw device images that are universally supported.
+    These are not installation images, but rather the preconfigured (``already installed'') instances, ready to run and perform post-installation tasks.
+\item
+   virtual machine images available at Amazon's AWS Marketplace, Microsoft Azure Marketplace, and Google Cloud Platform, to run on their respective hosting services.
+   For more information on deploying FreeBSD on Azure please consult the relevant chapter in the Azure Documentation.
+\item
+   SD card images, for embedded systems such as Raspberry Pi or BeagleBone Black.
+   These can be downloaded from the Download FreeBSD page.
+   These files must be uncompressed and written as a raw image to an SD card, from which the board will then boot.
+\item
+   installation images, to install FreeBSD on a hard drive for the usual desktop, laptop, or server systems.
+\end{itemize}
+The rest of this chapter describes the fourth case, explaining how to install FreeBSD using the text-based installation program named \cmd{bsdinstall}.
+
+In general, the installation instructions in this chapter are written for the i386™ and AMD64 architectures.
+Where applicable, instructions specific to other platforms will be listed.
+There may be minor differences between the installer and what is shown here, so use this chapter as a general guide rather than as a set of literal instructions.
+
+\begin{note}
+Users who prefer to install FreeBSD using a graphical installer may be interested in FuryBSD, GhostBSD or MidnightBSD.
+\end{note}
+
+After reading this chapter, you will know:
+\begin{itemize}
+\item
+   the minimum hardware requirements and FreeBSD supported architectures,
+\item
+   how to create the FreeBSD installation media,
+\item
+   how to start \cmd{bsdinstall},
+\item
+   the questions \cmd{bsdinstall} will ask, what they mean, and how to answer them,
+\item
+   how to troubleshoot a failed installation,
+\item
+   how to access a live version of FreeBSD before committing to an installation.
+\end{itemize}
+Before reading this chapter, you should:
+\begin{itemize}
+\item
+   read the supported hardware list that shipped with the version of FreeBSD to be installed and verify that the system's hardware is supported.
+\end{itemize}
+
+
+
+\section{Minimum Hardware Requirements}
+
+The hardware requirements to install FreeBSD vary by architecture.
+Hardware architectures and devices supported by a FreeBSD release are listed on the FreeBSD Release Information page.
+The FreeBSD download page also has recommendations for choosing the correct image for different architectures.
+
+A FreeBSD installation requires a minimum of 96\,MB of RAM and 1.5\,GB of free hard drive space.
+However, such small amounts of memory and disk space are really only suitable for custom applications like embedded appliances.
+General-purpose desktop systems need more resources, 2--4\,GB RAM and at least 8\,GB hard drive space is a good starting point.
+
+These are the processor requirements for each architecture.
+\begin{description}
+\item[amd64]
+   This is the most common desktop and laptop processor type, used in most modern systems.
+   Intel® calls it Intel64.
+   Other manufacturers sometimes call it x86-64.
+
+   Examples of amd64 compatible processors include: AMD Athlon™64, AMD Opteron™, multi-core Intel® Xeon™, and Intel® Core™ 2 and later processors.
+\item[i386]
+   Older desktops and laptops often use this 32-bit, x86 architecture.
+
+   Almost all i386-compatible processors with a floating point unit are supported.
+   All Intel® processors 486 or higher are supported.
+
+   FreeBSD will take advantage of Physical Address Extensions (PAE) support on CPUs with this feature.
+   A kernel with the PAE feature enabled will detect memory above 4\,GB and allow it to be used by the system.
+   However, using PAE places constraints on device drivers and other features of FreeBSD.
+\item[powerpc]
+   All New World ROM Apple® Mac® systems with built-in USB are supported.
+   SMP is supported on machines with multiple CPUs.
+
+   A 32-bit kernel can only use the first 2 GB of RAM.
+\item[sparc64]
+   Systems supported by FreeBSD/sparc64 are listed at the FreeBSD/sparc64 Project.
+
+   SMP is supported on all systems with more than 1 processor.
+   A dedicated disk is required as it is not possible to share a disk with another operating system at this time.
+\end{description}
+
+
+
+
+\section{Pre-Installation Tasks}
+Once it has been determined that the system meets the minimum hardware requirements for installing FreeBSD, the installation file should be downloaded and the installation media prepared.
+Before doing this, check that the system is ready for an installation by verifying the items in this checklist.
+
+\begin{enumerate}
+\item
+   Back up important data
+
+   Before installing any operating system, always backup all important data first.
+   Do not store the backup on the system being installed.
+   Instead, save the data to a removable disk such as a USB drive, another system on the network, or an online backup service.
+   Test the backup before starting the installation to make sure it contains all of the needed files.
+   Once the installer formats the system's disk, all data stored on that disk will be lost.
+\item 
+   Decide where to install FreeBSD
+
+   If FreeBSD will be the only operating system installed, this step can be skipped.
+   But if FreeBSD will share the disk with another operating system, decide which disk or partition will be used for FreeBSD.
+
+   In the i386 and amd64 architectures, disks can be divided into multiple partitions using one of two partitioning schemes.
+   A traditional \termi[MBR]{Master Boot Record} holds a partition table defining up to four primary \termi{partitions}.
+   For historical reasons, FreeBSD calls these primary partition \termi{slices}.
+   One of these primary partitions can be made into an \term{extended partition} containing multiple \term{logical partitions}.
+   The \termi[GPT]{GUID Partition Table} is a newer and simpler method of partitioning a disk.
+   Common GPT implementations allow up to 128 partitions per disk, eliminating the need for logical partitions.
+
+   The FreeBSD boot loader requires either a primary or GPT partition.
+   If all of the primary or GPT partitions are already in use, one must be freed for FreeBSD.
+   To create a partition without deleting existing data, use a partition resizing tool to shrink an existing partition and create a new partition using the freed space.
+
+   A variety of free and commercial partition resizing tools are listed at \url{http://en.wikipedia.org/wiki/List_of_disk_partitioning_software}.
+   GParted Live (\url{http://gparted.sourceforge.net/livecd.php}) is a free live CD which includes the GParted partition editor.
+   GParted is also included with many other Linux live CD distributions.
+
+   \begin{warning}
+   When used properly, disk shrinking utilities can safely create space for creating a new partition.
+   Since the possibility of selecting the wrong partition exists, always backup any important data and verify the integrity of the backup before modifying disk partitions.
+   \end{warning}
+
+   Disk partitions containing different operating systems make it possible to install multiple operating systems on one computer.
+   An alternative is to use virtualization (Chapter 21, \emph{Virtualization}) which allows multiple operating systems to run at the same time without modifying any disk partitions.
+\item    
+   Collect network information
+
+   Some FreeBSD installation methods require a network connection in order to download the installation files.
+   After any installation, the installer will offer to setup the system's network interfaces.
+
+   If the network has a DHCP server, it can be used to provide automatic network configuration.
+   If DHCP is not available, the following network information for the system must be obtained from the local network administrator or Internet service provider:
+   \begin{itemize}
+   \item IP address,
+   \item subnet mask,
+   \item IP address of the default gateway,
+   \item domain name of the network,
+   \item IP addresses of the network's DNS servers.
+   \end{itemize}
+\item
+   Check for FreeBSD errata
+
+   Although the FreeBSD Project strives to ensure that each release of FreeBSD is as stable as possible, bugs occasionally creep into the process.
+   On very rare occasions those bugs affect the installation process.
+   As these problems are discovered and fixed, they are noted in the FreeBSD Errata (\url{https://www.freebsd.org/releases/12.1R/errata.html}) on the FreeBSD web site.
+   Check the errata before installing to make sure that there are no problems that might affect the installation.
+\end{enumerate}
+
+
+
+\subsection{Prepare the Installation Media}
+
+The FreeBSD installer is not an application that can be run from within another operating system.
+Instead, download a FreeBSD installation file, burn it to the media associated with its file type and size (CD, DVD, or USB), and boot the system to install from the inserted media.
+
+FreeBSD installation files are available at \url{www.freebsd.org/where.html#download}.
+Each installation file's name includes the release version of FreeBSD, the architecture, and the type of file.
+For example, to install FreeBSD 12.1 on an amd64 system from a DVD, download \file{FreeBSD-12.1-RELEASE-amd64-dvd1.iso}, burn this file to a DVD, and boot the system with the DVD inserted.
+
+Installation files are available in several formats.
+The formats vary depending on computer architecture and media type.
+
+Additional installation files are included for computers that boot with UEFI (Unified Extensible Firmware Interface).
+The names of these files include the string ``uefi.''
+
+File types:
+\begin{itemize}
+\item
+   \file{-bootonly.iso}:
+   This is the smallest installation file as it only contains the installer.
+   A working Internet connection is required during installation 
+   as the installer will download the files it needs to complete the FreeBSD installation.
+   This file should be burned to a CD using a CD burning application.
+\item 
+   \file{-disc1.iso}:
+   This file contains all of the files needed to install FreeBSD, its source, and the Ports Collection.
+   It should be burned to a CD using a CD burning application.
+\item
+   \file{-dvd1.iso}:
+   This file contains all of the files needed to install FreeBSD, its source, and the Ports Collection.
+   It also contains a set of popular binary packages for installing a window manager and some applications so that a complete system can be installed from media without requiring a connection to the Internet. 
+   This file should be burned to a DVD using a DVD burning application.
+\item
+   \file{-memstick.img}:
+   This file contains all of the files needed to install FreeBSD, its source, and the Ports Collection.
+   It should be burned to a USB stick using the instructions below.
+\item
+   \file{-mini-memstick.img}:
+   Like \file{-bootonly.iso}, does not include installation files, but downloads them as needed.
+   A working internet connection is required during installation.
+   Write this file to a USB stick as shown in \vref{sec:writing-image-to-usb}.
+\end{itemize}
+After downloading the image file, download \file{CHECKSUM.SHA256} from the same directory.
+Calculate a checksum for the image file.
+FreeBSD provides \man[1]{sha256} for this, used as \cmd{sha256 \param{imagefilename}}.
+Other operating systems have similar programs.
+
+Compare the calculated checksum with the one shown in \file{CHECKSUM.SHA256}.
+The checksums must match exactly.
+If the checksums do not match, the image file is corrupt and must be downloaded again.
+
+\subsubsection{Writing an Image File to a USB Disk}
+\label{sec:writing-image-to-usb}
+
+The \file{*.img} file is an image of the complete contents of a memory stick.
+It cannot be copied to the target device as a file.
+Several applications are available for writing the \file{*.img} to a USB stick.
+This section describes two of these utilities.
+
+\begin{important}
+Before proceeding, back up any important data on the USB stick.
+This procedure will erase the existing data on the stick.
+\end{important}
+
+\paragraph{Using \cmd{dd} to Write the Image}
+\begin{warning}
+This example uses \file{/dev/da0} as the target device where the image will be written.
+Be \emph{very} careful that the correct device is used as this command will destroy the existing data on the specified target device.
+\end{warning}
+
+The \man[1]{dd} command-line utility is available on BSD, Linux®, and Mac OS® systems.
+To burn the image using \cmd{dd}, insert the USB stick and determine its device name.
+Then, specify the name of the downloaded installation file and the device name for the USB stick.
+This example burns the amd64 installation image to the first USB device on an existing FreeBSD system.
+\begin{lstlisting}
+# dd if=FreeBSD-12.1-RELEASE-amd64-memstick.img of=/dev/da0 bs=1M conv=sync
+\end{lstlisting}
+If this command fails, verify that the USB stick is not mounted and that the device name is for the disk, not a partition.
+Some operating systems might require this command to be run with \man[8]{sudo}.
+The \man[1]{dd} syntax varies slightly across different platforms; for example, Mac OS® requires a lower-case ``bs=1m.''
+Systems like Linux® might buffer writes.
+To force all writes to complete, use \man[8]{sync}.
+
+\paragraph{Using Windows® to Write the Image}
+\begin{warning}
+Be sure to give the correct drive letter as the existing data on the specified drive will be overwritten and destroyed.
+\end{warning}
+\begin{enumerate}
+\item
+   Obtaining Image Writer for Windows®
+
+   Image Writer for Windows® is a free application that can correctly write an image file to a memory stick.
+   Download it from \url{https://sourceforge.net/projects/win32diskimager/} and extract it into a folder.
+\item
+   Writing the Image with Image Writer
+
+   Double-click the \cmd{Win32DiskImager} icon to start the program. 
+   Verify that the drive letter shown under Device is the drive with the memory stick.
+   Click the folder icon and select the image to be written to the memory stick.
+   Click \key{[ Save ]} to accept the image file name.
+   Verify that everything is correct, and that no folders on the memory stick are open in other windows.
+   When everything is ready, click \key{[ Write ]} to write the image file to the memory stick.
+\end{enumerate}
+You are now ready to start installing FreeBSD.
+
+
+
+
+
+\section{Starting the Installation}
