@@ -1,0 +1,44 @@
+\documentclass[a4paper,11pt]{memoir}
+\usepackage{it-book/layout}
+
+\newcommand\key[1]{\textbf{#1}}
+\newcommand\user[1]{\texttt{#1}}
+
+\title{FreeBSD Handbook}
+\author{The FreeBSD Documentation Project}
+\date{1995--2020}
+
+\begin{document}
+
+\frontmatter
+
+\maketitle
+\thispagestyle{empty}
+
+\clearforchapter
+\maketitle
+\begin{abstract}
+\noindent
+Welcome to FreeBSD! This handbook covers the installation and day to day use of
+FreeBSD 12.1-RELEASE and FreeBSD 11.3-RELEASE.
+This book is the result of ongoing work by many individuals. Some sections might
+be outdated.
+Those interested in helping to update and expand this document should send email
+to the FreeBSD documentation project mailing list.
+
+The latest version of this book is available from the FreeBSD web site.
+Previous versions can be obtained from \url{https://docs.FreeBSD.org/doc/}.
+The book can be downloaded in a variety of formats and compression options from
+the FreeBSD FTP server or one of the numerous mirror sites.
+Printed copies can be purchased at the FreeBSD Mall.
+Searches can be performed on the handbook and other documents on the search
+page.
+\end{abstract}
+
+\include{preface}
+\clearforchapter\tableofcontents*
+
+\include{getting-started}
+\include{introduction}
+
+\end{document}

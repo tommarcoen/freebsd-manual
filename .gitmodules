@@ -1,0 +1,6 @@
+[submodule "tex-bibliography"]
+	path = tex-bibliography
+	url = git@github.com:tommarcoen/tex-bibliography.git
+[submodule "it-book"]
+	path = it-book
+	url = git@github.com:tommarcoen/it-book.git
