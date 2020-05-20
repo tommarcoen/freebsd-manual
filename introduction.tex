@@ -24,3 +24,65 @@ After reading this chapter you will know
 
 
 \section{Welcome to FreeBSD!}
+
+FreeBSD is an Open Source, standards-compliant Unix-like operating system for
+x86 (both 32 and 64 bit), ARM®, AArch64, RISC-V®, MIPS®, POWER®, PowerPC®, and
+Sun UltraSPARC® computers.
+It provides all the features that are nowadays taken for granted, such as
+preemptive multitasking, memory protection, virtual memory, multi-user
+facilities, SMP support, all the open source development tools for different
+languages and frameworks, and desktop features centered around X Window System,
+KDE, or GNOME.
+Its particular strengths are:
+\begin{itemize}
+\item
+   a liberal open source license, which grants you rights to freely modify and
+   extend its source code and incorporate it in both open source projects and
+   closed products without imposing restrictions typical to copyleft licenses,
+   as well as avoiding potential license incompatibility problems.
+\item
+   strong TCP/IP networking---FreeBSD implements industry standard protocols
+   with ever increasing performance and scalability.
+   This makes it a good match in both server, and routing/firewalling roles---%
+   and indeed many companies and vendors use it precisely for that purpose.
+\item
+   fully integrated OpenZFS support, including root-on-ZFS, ZFS boot
+   environments, fault management, administrative delegation, support for jails,
+   FreeBSD specific documentation, and system installer support.
+\item
+   extensive security features, from the mandatory access control framework to
+   Capsicum capability and sandbox mechanisms.
+\item
+   over 30 thousand prebuilt packages for all supported architectures, and the
+   Ports Collection which makes it easy to build your own, customized ones.
+\item
+   documentation---in addition to this handbook and books from different authors
+   that cover topics ranging from system administration to kernel internals,
+   there are also the \man[1]{man} pages, not only for userspace daemons,
+   utilities, and configuration files, but also for kernel driver APIs
+   (section~9) and individual drivers (section~4).
+\item
+   simple and consistent repository structure and build system---FreeBSD uses a
+   single repository for all of its components, both kernel and userspace.
+   This, along with an unified and easy to customize build system and a well
+   thought out development process makes it easy to integrate FreeBSD with build
+   infrastructure for your own product.
+\item
+   staying true to Unix philosophy, preferring composability instead of
+   monolithic ``all in one'' daemons with hardcoded behavior.
+\item
+   binary compatibility with Linux, which makes it possible to run many Linux
+   binaries without the need for virtualisation.
+\end{itemize}
+
+FreeBSD is based on the 4.4BSD-Lite release from Computer Systems Research Group
+(CSRG) at the University of California at Berkeley, and carries on the
+distinguished tradition of BSD systems development.
+In addition to the fine work provided by CSRG, the FreeBSD Project has put in
+many thousands of man-hours into extending the functionality and fine-tuning the
+system for maximum performance and reliability in real-life load situations.
+FreeBSD offers performance and reliability on par with other open source and
+commercial offerings, combined with cutting-edge features not available anywhere
+else.
+
+\subsection{What Can FreeBSD Do?}

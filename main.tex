@@ -1,8 +1,16 @@
 \documentclass[a4paper,11pt]{memoir}
 \usepackage{it-book/layout}
+\makeindex
+
 
 \newcommand\key[1]{\textbf{#1}}
 \newcommand\user[1]{\texttt{#1}}
+\newenvironment{warning}{}{}
+\newenvironment{note}{}{}
+\newenvironment{important}{}{}
+\newcommand\term[1]{\emph{#1}}
+\newcommand\termi[1]{\term{#1}\index{#1}}
+
 
 \title{FreeBSD Handbook}
 \author{The FreeBSD Documentation Project}
@@ -38,7 +46,9 @@ page.
 \include{preface}
 \clearforchapter\tableofcontents*
 
+\mainmatter
 \include{getting-started}
 \include{introduction}
+\include{install}
 
 \end{document}
